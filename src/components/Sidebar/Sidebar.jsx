@@ -4,12 +4,10 @@ import SidebarInputLocation from './SidebarInputLocation'
 import SidebarRouteOptions from './SidebarRouteOptions'
 import SidebarSelect from './SidebarSelect'
 import SidebarLocationOptions from './SidebarLocationOptions'
-import ShowNearby from './ShowNearby'
 import useSidebarStore from '../../store/sidebarStore'
 import Rush from '../Rush/Rush'
 import Recommendation from '../Recommendation/Recommendation'
 import SidebarAlerts from './SidebarAlerts'
-import RushPaths from '../Rush/RushPaths'
 
 const Sidebar = () => {
   const sidebarMode = useSidebarStore((state) => state.sidebarMode)
@@ -23,13 +21,11 @@ const Sidebar = () => {
           <SidebarSelect />
           <SidebarRouteOptions />
           <SidebarLocationOptions />
-          <ShowNearby />
         </>
       )}
-      {sidebarMode === 'Tour' && <Rush />}
+      {sidebarMode === 'Rush' && <Rush />}
       {sidebarMode === 'Recommend' && <Recommendation />}
       {sidebarMode === 'Explore' && <SidebarAlerts />}
-      {sidebarMode === '12' && <RushPaths />}
     </aside>
   )
 }

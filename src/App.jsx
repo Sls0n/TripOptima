@@ -17,7 +17,7 @@ function App() {
 
   return (
     <>
-      <GeoapifyContext apiKey="70982f5ded674a84abaa673ee6b6d2c7">
+      <GeoapifyContext apiKey={import.meta.env.VITE_GEOAPIFY_API_KEY}>
         <MapProvider>
           <IconContext.Provider
             value={{

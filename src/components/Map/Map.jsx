@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import MapGL from 'react-map-gl'
+import MapGL, { useMap } from 'react-map-gl'
 import mapboxgl from 'mapbox-gl'
 
 import classes from './Map.module.scss'
@@ -11,41 +11,30 @@ import useMapStore from '../../store/mapStore'
 import useRushStore from '../../store/rushStore'
 import MapInfo from './MapInfo'
 
-mapboxgl.accessToken =
-  'pk.eyJ1IjoibWFqaWhvIiwiYSI6ImNsaWg1ZmEyNTBxZjIzZm1wam51aGZ5YzEifQ.Sk1PZ3TrFEMIxSC4I9DBdA'
+mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_API_KEY
 
-const GEOAPIFY_API_KEY = '70982f5ded674a84abaa673ee6b6d2c7'
+const GEOAPIFY_API_KEY = import.meta.env.VITE_GEOAPIFY_API_KEY
 
 const MapLayout = () => {
   const mapRef = useRef(null)
+  const { map } = useMap()
   const [lnglat, setLngLat] = useState(null)
   const setCurrentLocation = useLocationStore(
     (state) => state.setCurrentLocation
   )
 
-  const currentLocation = useLocationStore((state) => state.currentLocation)
+  const {
+    currentLocation,
+    setDestinationLocation,
+    setDestinationAddress,
+    travelMode,
+  } = useLocationStore()
 
-  const setDestinationLocation = useLocationStore(
-    (state) => state.setDestinationLocation
-  )
+  const { setMarker, marker } = useMarkerStore()
 
-  const setDestinationAddress = useLocationStore(
-    (state) => state.setDestinationAddress
-  )
+  const { mapStyle } = useMapStore()
 
-  const setMarker = useMarkerStore((state) => state.setMarker)
-
-  const marker = useMarkerStore((state) => state.marker)
-
-  const mapStyle = useMapStore((state) => state.mapStyle)
-
-  const rushMode = useRushStore((state) => state.rushMode)
-
-  const rushRadius = useRushStore((state) => state.rushRadius)
-
-  const rushParams = useRushStore((state) => state.rushParams)
-
-  const alertMode = useLocationStore((state) => state.alertMode)
+  const { rushMode, rushRadius, rushParams } = useRushStore()
 
   useEffect(() => {
     navigator.geolocation.watchPosition((success) => {
@@ -57,13 +46,18 @@ const MapLayout = () => {
         console.log(error)
         alert('Please allow location access')
       }
-  }, [])
+  }, [setCurrentLocation])
 
   useEffect(() => {
     if (rushMode) {
-      console.log(rushParams, rushRadius, currentLocation)
+      map.flyTo({
+        center: [currentLocation[0], currentLocation[1]],
+        zoom: 16,
+        curve: 2,
+        speed: 1.2,
+      })
       fetch(
-        `https://api.geoapify.com/v2/places?categories=${rushParams}&filter=circle:${currentLocation[0]},${currentLocation[1]},${rushRadius}&bias=proximity:${currentLocation[0]},${currentLocation[1]}&limit=8&apiKey=${GEOAPIFY_API_KEY}`
+        `https://api.geoapify.com/v2/places?categories=${rushParams}&filter=circle:${currentLocation[0]},${currentLocation[1]},${rushRadius}&bias=proximity:${currentLocation[0]},${currentLocation[1]}&limit=20&apiKey=${GEOAPIFY_API_KEY}`
       )
         .then((res) => res.json())
         .then((data) => {
@@ -86,7 +80,7 @@ const MapLayout = () => {
         .catch((err) => console.log(err))
 
       fetch(
-        `https://api.geoapify.com/v1/isoline?lat=${currentLocation[1]}&lon=${currentLocation[0]}&type=time&mode=drive&range=${rushRadius}&apiKey=${GEOAPIFY_API_KEY}`
+        `https://api.geoapify.com/v1/isoline?lat=${currentLocation[1]}&lon=${currentLocation[0]}&type=distance&mode=${travelMode.api}&range=${rushRadius}&apiKey=${GEOAPIFY_API_KEY}`
       )
         .then((res) => res.json())
         .then((data) => {
@@ -124,54 +118,7 @@ const MapLayout = () => {
         })
         .catch((err) => console.log(err))
     }
-  }, [rushMode, rushRadius, rushParams])
-
-  useEffect(() => {
-    if (alertMode) {
-      console.log('hi')
-      mapRef?.current.getMap().addSource('maine', {
-        type: 'geojson',
-        data: {
-          type: 'Feature',
-          geometry: {
-            type: 'Polygon',
-            // These coordinates outline Maine.
-            coordinates: [
-              [
-                [84.43679556196999, 27.690794392889643],
-                [84.44449922049233, 27.6909359144872],
-                [84.44446725510272, 27.683010422528568],
-                [84.43606035803407, 27.684227589037974],
-              ],
-            ],
-          },
-        },
-      })
-
-      // Add a new layer to visualize the polygon.
-      mapRef?.current.getMap().addLayer({
-        id: 'maine',
-        type: 'fill',
-        source: 'maine', // reference the data source
-        layout: {},
-        paint: {
-          'fill-color': '#f00', // red color fill
-          'fill-opacity': 0.5,
-        },
-      })
-      // Add a black outline around the polygon.
-      mapRef?.current.getMap().addLayer({
-        id: 'outline',
-        type: 'line',
-        source: 'maine',
-        layout: {},
-        paint: {
-          'line-color': '#333',
-          'line-width': 2,
-        },
-      })
-    }
-  }, [alertMode])
+  }, [rushMode, rushRadius, rushParams, currentLocation, travelMode])
 
   return (
     <div className={classes.map}>
@@ -186,7 +133,7 @@ const MapLayout = () => {
           initialViewState={{
             longitude: lnglat[0],
             latitude: lnglat[1],
-            zoom: 14,
+            zoom: 2,
           }}
           mapStyle={mapStyle}
           mapboxAccessToken={mapboxgl.accessToken}
@@ -213,7 +160,7 @@ const MapLayout = () => {
             setDestinationLocation([lng, lat])
             // reverse geocoding through clicked coordinates
             fetch(
-              `https://api.geoapify.com/v1/geocode/reverse?lat=${lat}&lon=${lng}&apiKey=70982f5ded674a84abaa673ee6b6d2c7`
+              `https://api.geoapify.com/v1/geocode/reverse?lat=${lat}&lon=${lng}&apiKey=${GEOAPIFY_API_KEY}`
             )
               .then((res) => res.json())
               .then((data) => {

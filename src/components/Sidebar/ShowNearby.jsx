@@ -5,8 +5,8 @@ import Select from 'react-select'
 import useRushStore from '../../store/rushStore'
 
 const ShowNearby = () => {
-  const setRushParams = useRushStore((state) => state.setRushParams)
-  const setRushMode = useRushStore((state) => state.setRushMode)
+  const { setRushRadius, radius, setRadius, setRushParams, setRushMode } =
+    useRushStore()
 
   const options = [
     { value: 'accommodation.hotel', label: 'Accomodations' },
@@ -18,7 +18,7 @@ const ShowNearby = () => {
 
   return (
     <div className={classes['showNearby']}>
-      <div className={classes.heading}>Show places nearby</div>
+      <div className={classes.heading}>Show places nearby me</div>
       <div className={classes['filters']}>
         <Select
           id="select"
@@ -26,6 +26,8 @@ const ShowNearby = () => {
           onChange={(e) => {
             setRushParams(e.value)
             setRushMode(true)
+            setRadius(radius)
+            setRushRadius(radius)
           }}
           options={options}
           styles={{
@@ -74,7 +76,7 @@ const ShowNearby = () => {
           }}
         />
       </div>
-      <div className={classes.heading}>Within radius (in metre)</div>
+      <div className={classes.heading}>Within radius/distance (in metre)</div>
       <RadiusInput />
     </div>
   )

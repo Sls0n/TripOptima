@@ -1,18 +1,10 @@
 import classes from './Rush.module.scss'
-import RushButton from './RushButton'
-import RushHourSelect from './RushHourSelect'
-import RushLongShort from './RushLongShort'
-import RushGenerate from './RushGenerate'
+import ShowNearby from '../Sidebar/ShowNearby'
 
-const Rush = () => {
+export default function Rush() {
   return (
     <div className={classes.rush}>
-      <RushLongShort />
-      <RushHourSelect />
-      <RushButton />
-      <RushGenerate />
+      <ShowNearby />
     </div>
   )
 }
-
-export default Rush

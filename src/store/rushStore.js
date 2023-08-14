@@ -4,7 +4,7 @@ const useRushStore = create((set) => ({
   rushMode: false,
   setRushMode: (rushMode) => set({ rushMode }),
 
-  rushRadius: 5000,
+  rushRadius: 500,
   setRushRadius: (rushRadius) => set({ rushRadius }),
 
   rushParams: null,
@@ -15,6 +15,9 @@ const useRushStore = create((set) => ({
 
   alertMode: false,
   setAlertMode: (alertMode) => set({ alertMode }),
+
+  radius: 500,
+  setRadius: (radius) => set({ radius }),
 }))
 
 export default useRushStore

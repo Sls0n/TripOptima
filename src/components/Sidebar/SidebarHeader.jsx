@@ -3,7 +3,7 @@ import SwitchSelector from 'react-switch-selector'
 import useSidebarStore from '../../store/sidebarStore'
 
 const SidebarHeader = () => {
-  const setSidebarMode = useSidebarStore((state) => state.setSidebarMode)
+  const { setSidebarMode } = useSidebarStore()
 
   const options = [
     {
@@ -11,8 +11,8 @@ const SidebarHeader = () => {
       value: 'Location',
     },
     {
-      label: 'Plan Tour',
-      value: 'Tour',
+      label: 'Rush',
+      value: 'Rush',
     },
     {
       label: 'Recommend',
@@ -28,7 +28,12 @@ const SidebarHeader = () => {
     <div className={classes.sidebar__header}>
       <div className={classes['sidebar__header-container']}>
         <h1 className={classes['sidebar__header-text']}>Map modes</h1>
-        <button className={classes['sidebar__header-button']}>Reset</button>
+        <button
+          onClick={() => {}}
+          className={classes['sidebar__header-button']}
+        >
+          Reset
+        </button>
       </div>
 
       <div className={classes['sidebar__switch-button']}>
